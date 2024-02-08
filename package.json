@@ -1,0 +1,24 @@
+{
+  "name": "@anio-js-foundation/request-response-protocol",
+  "version": "0.0.1",
+  "description": "A simple request/response protocol implementation.",
+  "main": "./dist/package.mjs",
+  "author": "Anio Software <info@anio.software>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anio-js-foundation/request-response-protocol.git"
+  },
+  "devDependencies": {
+    "@anio-js-core-foundation/create-promise": "^1.0.1",
+    "@anio-js-core-foundation/create-random-identifier": "^1.0.1",
+    "@anio-js-foundation/bundle-package": "^3.1.0",
+    "@anio-js-foundation/create-worker": "^0.8.0"
+  },
+  "scripts": {
+    "prepare": "./node_modules/.bin/bundle-package ."
+  },
+  "files": [
+    "./dist/package.mjs"
+  ]
+}
