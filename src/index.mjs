@@ -25,6 +25,8 @@ export default function createRequestResponseProtocol(api, label = "") {
 		retransmission_delay: 350,
 
 		debug(...args) {
+			if (instance.public_interface.debug !== true) return
+
 			console.log(label, ...args)
 		},
 
@@ -70,6 +72,8 @@ export default function createRequestResponseProtocol(api, label = "") {
 		},
 
 		public_interface: {
+			debug: false,
+
 			ready() {
 				return synchronized_promise.promise
 			},
