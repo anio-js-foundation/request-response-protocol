@@ -90,14 +90,14 @@ export default function createRequestResponseProtocol(api, label = "") {
 			},
 
 			closeAllPendingRequests(reason = `closeAllPendingRequests() was called.`) {
-				for (const [request_id, request] of instance.open_requests) {
-					const {reject} = request.request_promise
+				for (const [request_id, open_request] of instance.open_requests) {
+					const {reject} = open_request.request_promise
 
 					setTimeout(reject, 0, new Error(reason))
 
 					// make sure to cancel timer
-					if (request.timer !== null) {
-						clearTimeout(request.timer)
+					if (open_request.timer !== null) {
+						clearTimeout(open_request.timer)
 					}
 
 					instance.open_requests.delete(request_id)

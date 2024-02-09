@@ -48,13 +48,13 @@ export default async function onMessageReceived(instance, message) {
 			return
 		}
 
-		const request_object = instance.open_requests.get(original_request_id)
+		const open_request = instance.open_requests.get(original_request_id)
 
-		if (request_object.timer !== null) {
-			clearTimeout(request_object.timer)
+		if (open_request.timer !== null) {
+			clearTimeout(open_request.timer)
 		}
 
-		const {resolve} = request_object.request_promise
+		const {resolve} = open_request.request_promise
 
 		setTimeout(resolve, 0, message.response)
 
