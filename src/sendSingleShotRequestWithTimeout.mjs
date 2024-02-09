@@ -1,7 +1,7 @@
 import createRandomIdentifier from "@anio-js-core-foundation/create-random-identifier"
 import createPromise from "@anio-js-core-foundation/create-promise"
 
-export default function sendRequestWithTimeout(instance, data, timeout = 0) {
+export default function(instance, data, timeout = 0) {
 	if (!instance.ready) {
 		throw new Error(`Cannot send request when protocol is not ready.`)
 	} else if (instance.closed) {
@@ -10,7 +10,7 @@ export default function sendRequestWithTimeout(instance, data, timeout = 0) {
 
 	// create a request id that identifies this particular request
 	const request_id = createRandomIdentifier(12)
-	// create the promise returned by sendRequest()
+	// create the promise returned by sendSingleShotRequest()
 	const request_promise = createPromise()
 	// keep track of timer to clear the timeout when response arrives
 	let timeout_timer = null

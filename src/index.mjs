@@ -1,7 +1,7 @@
 import createRandomIdentifier from "@anio-js-core-foundation/create-random-identifier"
 import createPromise from "@anio-js-core-foundation/create-promise"
 import createAsyncMutex from "@anio-js-core-foundation/create-async-mutex"
-import sendRequestWithTimeout from "./sendRequestWithTimeout.mjs"
+import sendSingleShotRequestWithTimeout from "./sendSingleShotRequestWithTimeout.mjs"
 import onMessageReceived from "./onMessageReceived.mjs"
 
 export default function createRequestResponseProtocol(api, label = "") {
@@ -67,14 +67,14 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 			withTimeout(timeout_value) {
 				return {
-					sendRequest(request_data) {
-						return sendRequestWithTimeout(instance, request_data, timeout_value)
+					sendSingleShotRequest(request_data) {
+						return sendSingleShotRequestWithTimeout(instance, request_data, timeout_value)
 					}
 				}
 			},
 
-			sendRequest(request_data) {
-				return sendRequestWithTimeout(instance, request_data, 0)
+			sendSingleShotRequest(request_data) {
+				return sendSingleShotRequestWithTimeout(instance, request_data, 0)
 			},
 
 			closeAllPendingRequests(reason = `closeAllPendingRequests() was called.`) {
