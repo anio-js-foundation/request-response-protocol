@@ -10,6 +10,18 @@ export default function createRequestResponseProtocol(api, label = "") {
 	let synchronized_promise = createPromise()
 	let current_state = "init"
 
+	/*
+	 * Wrap api.sendMessage to ignore errors that are thrown
+	 * by that function.
+	 */
+	const sendMessageViaAPI = async (instance, message) => {
+		try {
+			await api.sendMessage(message)
+		} catch (e) {
+			instance.debug(`api.sendMessage failed with '${e.message}'`)
+		}
+	}
+
 	let instance = {
 		open_requests: new Map(),
 		mutex: createAsyncMutex(),
@@ -31,7 +43,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 		},
 
 		sendJSONData(data) {
-			api.sendMessage(`start{` + JSON.stringify(data) + `}end`)
+			sendMessageViaAPI(instance, `start{` + JSON.stringify(data) + `}end`)
 		},
 
 		messageHandler(message) {
@@ -41,7 +53,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 				if (message.startsWith("sync:")) {
 					const sync_token = message.slice("sync:".length)
 
-					api.sendMessage(`@anio-js-foundation/requestResponseProtocol:ack:${sync_token}`)
+					sendMessageViaAPI(instance, `@anio-js-foundation/requestResponseProtocol:ack:${sync_token}`)
 				} else if (message.startsWith("ack:")) {
 					const sync_token = message.slice("ack:".length)
 
@@ -169,7 +181,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 		instance.debug("attempt to synchronize")
 
-		await api.sendMessage(`@anio-js-foundation/requestResponseProtocol:sync:${synchronize_token}`)
+		await sendMessageViaAPI(instance, `@anio-js-foundation/requestResponseProtocol:sync:${synchronize_token}`)
 
 		// by default use the last value from the delay map
 		let amount = delay_map[delay_map.length - 1]
