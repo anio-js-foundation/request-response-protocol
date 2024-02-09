@@ -22,7 +22,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 		closed: false,
 
 		debug(...args) {
-			console.log(...args)
+			console.log(label, ...args)
 		},
 
 		sendJSONData(data) {
