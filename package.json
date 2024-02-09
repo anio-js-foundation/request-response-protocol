@@ -10,6 +10,7 @@
     "url": "git+https://github.com/anio-js-foundation/request-response-protocol.git"
   },
   "devDependencies": {
+    "@anio-js-core-foundation/create-async-mutex": "^1.0.1",
     "@anio-js-core-foundation/create-promise": "^1.0.1",
     "@anio-js-core-foundation/create-random-identifier": "^1.0.1",
     "@anio-js-foundation/bundle-package": "^3.1.0",

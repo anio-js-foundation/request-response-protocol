@@ -1,15 +1,40 @@
+import pruneHandledRequestsCache from "./pruneHandledRequestsCache.mjs"
+
 export default async function onMessageReceived(instance, message) {
 	//
 	// call request handler
 	//
 	if (message.cmd === "request") {
-		const response = await instance.public_interface.requestHandler(message.data)
+		//
+		// make sure every request is handled sequentially
+		// this is needed for the response cache
+		//
+		const release = await instance.mutex.acquire()
+
+		let response = null, from_cache = false
+
+		if (instance.handled_requests.has(message.request_id)) {
+			response = instance.handled_requests.get(message.request_id)
+
+			from_cache = true
+		} else {
+			response = await instance.public_interface.requestHandler(message.data)
+		}
 
 		instance.sendJSONData({
 			cmd: "response",
 			original_request_id: message.request_id,
-			response
+			response,
+			from_cache
 		})
+
+		if (!from_cache) {
+			instance.handled_requests.set(message.request_id, response)
+		}
+
+		pruneHandledRequestsCache(instance)
+
+		await release()
 	}
 	//
 	// handle incoming response

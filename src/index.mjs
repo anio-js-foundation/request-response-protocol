@@ -1,5 +1,6 @@
 import createRandomIdentifier from "@anio-js-core-foundation/create-random-identifier"
 import createPromise from "@anio-js-core-foundation/create-promise"
+import createAsyncMutex from "@anio-js-core-foundation/create-async-mutex"
 import sendRequestWithTimeout from "./sendRequestWithTimeout.mjs"
 import onMessageReceived from "./onMessageReceived.mjs"
 
@@ -10,6 +11,13 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 	let instance = {
 		open_requests: new Map(),
+		mutex: createAsyncMutex(),
+		/*
+		 * Keep a map of handled requests so if the same
+		 * request is received a second time, the result is re-used
+		 * and the request handler isn't called a second time.
+		 */
+		handled_requests: new Map(),
 		ready: false,
 		closed: false,
 
