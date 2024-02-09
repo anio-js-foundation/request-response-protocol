@@ -2,12 +2,6 @@ import createRandomIdentifier from "@anio-js-core-foundation/create-random-ident
 import createPromise from "@anio-js-core-foundation/create-promise"
 
 export default function(instance, data, timeout = 0) {
-	if (!instance.ready) {
-		throw new Error(`Cannot send request when protocol is not ready.`)
-	} else if (instance.closed) {
-		throw new Error(`Cannot send request when protocol is closed.`)
-	}
-
 	// create a request id that identifies this particular request
 	const request_id = createRandomIdentifier(12)
 	// create the promise returned by sendSingleShotRequest()

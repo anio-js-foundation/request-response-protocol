@@ -58,6 +58,14 @@ export default function createRequestResponseProtocol(api, label = "") {
 			}
 		},
 
+		assertReadyAndNotClosed() {
+			if (!instance.ready) {
+				throw new Error(`Cannot send request when protocol is not ready.`)
+			} else if (instance.closed) {
+				throw new Error(`Cannot send request when protocol is closed.`)
+			}
+		},
+
 		public_interface: {
 			ready() {
 				return synchronized_promise.promise
@@ -68,12 +76,16 @@ export default function createRequestResponseProtocol(api, label = "") {
 			withTimeout(timeout_value) {
 				return {
 					sendSingleShotRequest(request_data) {
+						instance.assertReadyAndNotClosed()
+
 						return sendSingleShotRequestWithTimeout(instance, request_data, timeout_value)
 					}
 				}
 			},
 
 			sendSingleShotRequest(request_data) {
+				instance.assertReadyAndNotClosed()
+
 				return sendSingleShotRequestWithTimeout(instance, request_data, 0)
 			},
 
