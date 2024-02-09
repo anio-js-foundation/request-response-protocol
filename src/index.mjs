@@ -157,14 +157,13 @@ export default function createRequestResponseProtocol(api, label = "") {
 	const delay_map = [50, 50, 50, 100, 100, 150, 150, 150, 250, 500, 750, 1000]
 	let delay_index = 0
 
-	const synchronize = () => {
+	const synchronize = async () => {
 		if (instance.closed) return
 		if (instance.ready) return
 
 		instance.debug("attempt to synchronize")
 
-		api.sendMessage(`@anio-js-foundation/requestResponseProtocol:sync:${synchronize_token}`)
-
+		await api.sendMessage(`@anio-js-foundation/requestResponseProtocol:sync:${synchronize_token}`)
 
 		// by default use the last value from the delay map
 		let amount = delay_map[delay_map.length - 1]
