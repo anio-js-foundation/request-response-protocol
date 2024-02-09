@@ -2,6 +2,7 @@ import createRandomIdentifier from "@anio-js-core-foundation/create-random-ident
 import createPromise from "@anio-js-core-foundation/create-promise"
 import createAsyncMutex from "@anio-js-core-foundation/create-async-mutex"
 import sendSingleShotRequestWithTimeout from "./sendSingleShotRequestWithTimeout.mjs"
+import sendRetransmittingRequest from "./sendRetransmittingRequest.mjs"
 import onMessageReceived from "./onMessageReceived.mjs"
 
 export default function createRequestResponseProtocol(api, label = "") {
@@ -20,6 +21,8 @@ export default function createRequestResponseProtocol(api, label = "") {
 		handled_requests: new Map(),
 		ready: false,
 		closed: false,
+
+		retransmission_delay: 350,
 
 		debug(...args) {
 			console.log(label, ...args)
@@ -71,16 +74,42 @@ export default function createRequestResponseProtocol(api, label = "") {
 				return synchronized_promise.promise
 			},
 
+			setRetransmissionDelay(amount) {
+				instance.retransmission_delay = amount
+			},
+
 			requestHandler() {},
 
 			withTimeout(timeout_value) {
 				return {
+					sendRequest(request_data) {
+						let max_attempts = Math.floor(timeout_value / instance.retransmission_delay)
+
+						instance.debug(
+							`Calculated max_attempts = '${max_attempts}' from timeout value '${timeout_value}ms' (retransmission delay is '${instance.retransmission_delay}ms')`
+						)
+
+						return sendRetransmittingRequest(instance, request_data, max_attempts)
+					},
+
 					sendSingleShotRequest(request_data) {
 						instance.assertReadyAndNotClosed()
 
 						return sendSingleShotRequestWithTimeout(instance, request_data, timeout_value)
 					}
 				}
+			},
+
+			withMaxRetransmissionAttempts(max_attempts) {
+				return {
+					sendRequest(request_data) {
+						return sendRetransmittingRequest(instance, request_data, max_attempts)
+					}
+				}
+			},
+
+			sendRequest(request_data) {
+				return sendRetransmittingRequest(instance, request_data, -1)
 			},
 
 			sendSingleShotRequest(request_data) {
