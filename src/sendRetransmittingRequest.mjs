@@ -43,7 +43,9 @@ export default function(instance, data, max_attempts = -1) {
 		instance.sendJSONData({
 			cmd: "request",
 			request_id,
-			data
+			data,
+			max_attempts,
+			attempt_no
 		})
 
 		open_request.timer = setTimeout(retransmit, retransmission_delay)
@@ -57,7 +59,9 @@ export default function(instance, data, max_attempts = -1) {
 	instance.sendJSONData({
 		cmd: "request",
 		request_id,
-		data
+		data,
+		max_attempts,
+		attempt_no
 	})
 
 	return request_promise.promise
