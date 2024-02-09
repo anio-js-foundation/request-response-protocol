@@ -21,7 +21,7 @@ export default function(instance, data, timeout = 0) {
 
 	instance.open_requests.set(request_id, {
 		request_promise,
-		timeout_timer
+		timer: timeout_timer
 	})
 
 	instance.sendJSONData({

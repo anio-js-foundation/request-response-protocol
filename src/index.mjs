@@ -95,9 +95,9 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 					setTimeout(reject, 0, new Error(reason))
 
-					// make sure to cancel timeout timer
-					if (request.timeout_timer !== null) {
-						clearTimeout(request.timeout_timer)
+					// make sure to cancel timer
+					if (request.timer !== null) {
+						clearTimeout(request.timer)
 					}
 
 					instance.open_requests.delete(request_id)

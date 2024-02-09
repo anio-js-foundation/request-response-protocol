@@ -50,8 +50,8 @@ export default async function onMessageReceived(instance, message) {
 
 		const request_object = instance.open_requests.get(original_request_id)
 
-		if (request_object.timeout_timer !== null) {
-			clearTimeout(request_object.timeout_timer)
+		if (request_object.timer !== null) {
+			clearTimeout(request_object.timer)
 		}
 
 		const {resolve} = request_object.request_promise
