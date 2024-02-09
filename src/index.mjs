@@ -82,7 +82,9 @@ export default function createRequestResponseProtocol(api, label = "") {
 				instance.retransmission_delay = amount
 			},
 
-			requestHandler() {},
+			requestHandler(request) {
+				return `Please set instance.requestHandler to handle requests. Incoming request data was: ${JSON.stringify(request)}.`
+			},
 
 			withTimeout(timeout_value) {
 				return {
