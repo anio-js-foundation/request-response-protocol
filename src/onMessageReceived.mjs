@@ -1,6 +1,8 @@
 import pruneHandledRequestsCache from "./pruneHandledRequestsCache.mjs"
 
 async function handleMessage(instance, message) {
+	instance.trace(`i will be handling the following message '${JSON.stringify(message)}'`)
+
 	//
 	// call request handler
 	//
@@ -15,6 +17,10 @@ async function handleMessage(instance, message) {
 		} else {
 			response = await instance.public_interface.requestHandler(message.data)
 		}
+
+		let from_cache_str = from_cache ? " (from cache)" : ""
+
+		instance.trace(`i have handled the message. my response is '${JSON.stringify(response)}'${from_cache_str}`)
 
 		instance.sendJSONData({
 			cmd: "response",

@@ -42,7 +42,13 @@ export default function createRequestResponseProtocol(api, label = "") {
 		debug(...args) {
 			if (instance.public_interface.debug !== true) return
 
-			console.log(label, ...args)
+			console.log(`[${label} (D)]`, ...args)
+		},
+
+		trace(...args) {
+			if (instance.public_interface.trace !== true) return
+
+			console.log(`[${label} (T)]`, ...args)
 		},
 
 		sendJSONData(data) {
@@ -88,6 +94,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 		public_interface: {
 			debug: false,
+			trace: false,
 
 			connection_id,
 

@@ -6,6 +6,9 @@ export default function(instance, data, max_attempts = -1) {
 
 	// create a request id that identifies this particular request
 	const request_id = createRandomIdentifier(12)
+
+	instance.trace(`i will be using requestId '${request_id}' for the message '${JSON.stringify(data)}'.`)
+
 	// create the promise returned by sendRequest()
 	const request_promise = createPromise()
 	// save retransmission delay for this request
@@ -40,7 +43,7 @@ export default function(instance, data, max_attempts = -1) {
 			return
 		}
 
-		instance.debug(`retransmitting request '${request_id}'`)
+		instance.debug(`i'm retransmitting the request '${request_id}'`)
 
 		instance.sendJSONData({
 			cmd: "request",
