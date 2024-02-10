@@ -20,7 +20,7 @@ async function handleMessage(instance, message) {
 
 		let from_cache_str = from_cache ? " (from cache)" : ""
 
-		instance.trace(`i have handled the message. my response is '${JSON.stringify(response)}'${from_cache_str}`)
+		instance.trace(`i have already handled the message '${JSON.stringify(message)}'. my response is '${JSON.stringify(response)}'${from_cache_str}`)
 
 		instance.sendJSONData({
 			cmd: "response",
