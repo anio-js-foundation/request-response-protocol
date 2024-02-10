@@ -17,7 +17,12 @@ async function handleMessage(instance, message) {
 			if (!instance.received_requests.has(message.request_id)) {
 				instance.received_requests.set(message.request_id, 1)
 
-				response = await instance.public_interface.requestHandler(message.data)
+				response = await instance.public_interface.requestHandler(message.data, null, {
+					debug: {
+						instance,
+						message
+					}
+				})
 			} else {
 				instance.debug(`i already received this request: '${message.request_id}'`)
 
