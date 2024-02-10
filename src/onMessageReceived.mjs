@@ -1,4 +1,4 @@
-import pruneHandledRequestsCache from "./pruneHandledRequestsCache.mjs"
+import pruneRequestsCache from "./pruneRequestsCache.mjs"
 
 async function handleMessage(instance, message) {
 	instance.trace(`i will be handling the following message '${JSON.stringify(message)}'`)
@@ -40,7 +40,7 @@ async function handleMessage(instance, message) {
 			instance.handled_requests.set(message.request_id, response)
 		}
 
-		pruneHandledRequestsCache(instance)
+		pruneRequestsCache(instance)
 	}
 	//
 	// handle incoming response
