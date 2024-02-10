@@ -116,8 +116,6 @@ export default function createRequestResponseProtocol(api, label = "") {
 					},
 
 					sendSingleShotRequest(request_data) {
-						instance.assertReadyAndNotClosed()
-
 						return sendSingleShotRequestWithTimeout(instance, request_data, timeout_value)
 					}
 				}
@@ -136,8 +134,6 @@ export default function createRequestResponseProtocol(api, label = "") {
 			},
 
 			sendSingleShotRequest(request_data) {
-				instance.assertReadyAndNotClosed()
-
 				return sendSingleShotRequestWithTimeout(instance, request_data, 0)
 			},
 

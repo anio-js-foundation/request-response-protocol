@@ -2,6 +2,8 @@ import createRandomIdentifier from "@anio-js-core-foundation/create-random-ident
 import createPromise from "@anio-js-core-foundation/create-promise"
 
 export default function(instance, data, max_attempts = -1) {
+	instance.assertReadyAndNotClosed()
+
 	// create a request id that identifies this particular request
 	const request_id = createRandomIdentifier(12)
 	// create the promise returned by sendRequest()
