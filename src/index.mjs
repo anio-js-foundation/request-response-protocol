@@ -6,6 +6,7 @@ import sendRetransmittingRequest from "./sendRetransmittingRequest.mjs"
 import onMessageReceived from "./onMessageReceived.mjs"
 
 export default function createRequestResponseProtocol(api, label = "") {
+	const connection_id = createRandomIdentifier(12)
 	const synchronize_token = createRandomIdentifier(32)
 	let synchronized_promise = createPromise()
 	let current_state = "init"
@@ -23,6 +24,8 @@ export default function createRequestResponseProtocol(api, label = "") {
 	}
 
 	let instance = {
+		connection_id,
+
 		open_requests: new Map(),
 		mutex: createAsyncMutex(),
 		/*
@@ -85,6 +88,8 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 		public_interface: {
 			debug: false,
+
+			connection_id,
 
 			ready() {
 				return synchronized_promise.promise
