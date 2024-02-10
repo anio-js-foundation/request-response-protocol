@@ -34,6 +34,11 @@ export default function createRequestResponseProtocol(api, label = "") {
 		 * and the request handler isn't called a second time.
 		 */
 		handled_requests: new Map(),
+		/**
+		 * Keep a map of received requests to not execute the
+		 * requestHandler a second time. Yes, this can happen.
+		 */
+		received_requests: new Map(),
 		ready: false,
 		closed: false,
 

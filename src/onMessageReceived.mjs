@@ -7,7 +7,6 @@ async function handleMessage(instance, message) {
 	// call request handler
 	//
 	if (message.cmd === "request") {
-
 		let response = null, from_cache = false
 
 		if (instance.handled_requests.has(message.request_id)) {
@@ -15,7 +14,15 @@ async function handleMessage(instance, message) {
 
 			from_cache = true
 		} else {
-			response = await instance.public_interface.requestHandler(message.data)
+			if (!instance.received_requests.has(message.request_id)) {
+				instance.received_requests.set(message.request_id, 1)
+
+				response = await instance.public_interface.requestHandler(message.data)
+			} else {
+				instance.debug(`i already received this request: '${message.request_id}'`)
+
+				return
+			}
 		}
 
 		let from_cache_str = from_cache ? " (from cache)" : ""
