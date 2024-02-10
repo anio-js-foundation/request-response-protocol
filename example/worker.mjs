@@ -1,7 +1,7 @@
 import createRequestResponseProtocol from "../dist/package.mjs"
 
-export function WorkerMain(...args) {
-	console.log("WorkerMain", args)
+export function NodeWorkerMain(...args) {
+	console.log("NodeWorkerMain", args)
 
 	const protocol = createRequestResponseProtocol(this, "WorkerMain")
 

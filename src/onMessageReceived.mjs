@@ -1,15 +1,10 @@
 import pruneHandledRequestsCache from "./pruneHandledRequestsCache.mjs"
 
-export default async function onMessageReceived(instance, message) {
+async function handleMessage(instance, message) {
 	//
 	// call request handler
 	//
 	if (message.cmd === "request") {
-		//
-		// make sure every request is handled sequentially
-		// this is needed for the response cache
-		//
-		const release = await instance.mutex.acquire()
 
 		let response = null, from_cache = false
 
@@ -33,8 +28,6 @@ export default async function onMessageReceived(instance, message) {
 		}
 
 		pruneHandledRequestsCache(instance)
-
-		await release()
 	}
 	//
 	// handle incoming response
@@ -60,7 +53,18 @@ export default async function onMessageReceived(instance, message) {
 
 		instance.open_requests.delete(original_request_id)
 	}
-	else {
+}
 
+export default async function onMessageReceived(instance, message) {
+	//
+	// make sure every request is handled sequentially
+	// this is needed for the response cache
+	//
+	const release = await instance.mutex.acquire()
+
+	try {
+		await handleMessage(instance, message)
+	} finally {
+		await release()
 	}
 }
