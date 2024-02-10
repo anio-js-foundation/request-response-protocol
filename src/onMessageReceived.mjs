@@ -15,7 +15,10 @@ async function handleMessage(instance, message) {
 			from_cache = true
 		} else {
 			if (!instance.received_requests.has(message.request_id)) {
-				instance.received_requests.set(message.request_id, 1)
+
+				if (!instance.debug_options.disable_saving_received_requests) {
+					instance.received_requests.set(message.request_id, 1)
+				}
 
 				response = await instance.public_interface.requestHandler(message.data, null, {
 					debug: {
@@ -78,7 +81,11 @@ export default async function onMessageReceived(instance, message) {
 	// make sure every request is handled sequentially
 	// this is needed for the response cache
 	//
-	const release = await instance.mutex.acquire()
+	let release = await instance.mutex.acquire()
+
+	if (instance.debug_options.disable_mutex) {
+		release = () => {}
+	}
 
 	try {
 		await handleMessage(instance, message)

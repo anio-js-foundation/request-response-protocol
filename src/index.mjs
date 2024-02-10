@@ -50,6 +50,12 @@ export default function createRequestResponseProtocol(api, label = "") {
 			console.log(`[${label} (D)]`, ...args)
 		},
 
+		// only to be used for debugging
+		debug_options: {
+			disable_mutex: false,
+			disable_saving_received_requests: false
+		},
+
 		trace(...args) {
 			if (instance.public_interface.trace !== true) return
 
@@ -102,6 +108,14 @@ export default function createRequestResponseProtocol(api, label = "") {
 			trace: false,
 
 			connection_id,
+
+			_setDebugDisableMutex(value) {
+				instance.debug_options.disable_mutex = value
+			},
+
+			_setDisableSavingReceivedRequests(value) {
+				instance.debug_options.disable_saving_received_requests = value
+			},
 
 			ready() {
 				return synchronized_promise.promise
