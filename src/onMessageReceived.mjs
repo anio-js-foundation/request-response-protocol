@@ -81,10 +81,10 @@ export default async function onMessageReceived(instance, message) {
 	// make sure every request is handled sequentially
 	// this is needed for the response cache
 	//
-	let release = await instance.mutex.acquire()
+	let release = () => {}
 
-	if (instance.debug_options.disable_mutex) {
-		release = () => {}
+	if (!instance.debug_options.disable_mutex) {
+		release = await instance.mutex.acquire()
 	}
 
 	try {
