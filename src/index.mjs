@@ -1,6 +1,5 @@
 import createRandomIdentifier from "@anio-js-core-foundation/create-random-identifier"
 import createPromise from "@anio-js-core-foundation/create-promise"
-import createAsyncMutex from "@anio-js-core-foundation/create-async-mutex"
 import sendSingleShotRequestWithTimeout from "./sendSingleShotRequestWithTimeout.mjs"
 import sendRetransmittingRequest from "./sendRetransmittingRequest.mjs"
 import onMessageReceived from "./onMessageReceived.mjs"
@@ -28,13 +27,16 @@ export default function createRequestResponseProtocol(api, label = "") {
 		label,
 
 		open_requests: new Map(),
-		mutex: createAsyncMutex(),
 		/*
 		 * Keep a map of handled requests so if the same
 		 * request is received a second time, the result is re-used
 		 * and the request handler isn't called a second time.
 		 */
 		handled_requests: new Map(),
+		/*
+		 * Keep track of pending responses so we don't execute
+		 * the request handler a second time.
+		 */
 		pending_responses: new Map(),
 		ready: false,
 		closed: false,
@@ -45,12 +47,6 @@ export default function createRequestResponseProtocol(api, label = "") {
 			if (instance.public_interface.debug !== true) return
 
 			console.log(`[${label} (D)]`, ...args)
-		},
-
-		// only to be used for debugging
-		debug_options: {
-			disable_mutex: false,
-			print_mutex_acquisition: false
 		},
 
 		trace(...args) {
@@ -105,14 +101,6 @@ export default function createRequestResponseProtocol(api, label = "") {
 			trace: false,
 
 			connection_id,
-
-			_setDebugDisableMutex(value) {
-				instance.debug_options.disable_mutex = value
-			},
-
-			_setDebugPrintMutexAcquisition(value) {
-				instance.debug_options.print_mutex_acquisition = value
-			},
 
 			ready() {
 				return synchronized_promise.promise
