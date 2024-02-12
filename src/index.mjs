@@ -39,7 +39,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 		ready: false,
 		closed: false,
 
-		retransmission_delay: 350,
+		retransmission_delay: 500,
 
 		debug(...args) {
 			if (instance.public_interface.debug !== true) return
