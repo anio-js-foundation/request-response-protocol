@@ -25,6 +25,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 	let instance = {
 		connection_id,
+		label,
 
 		open_requests: new Map(),
 		mutex: createAsyncMutex(),
@@ -34,11 +35,6 @@ export default function createRequestResponseProtocol(api, label = "") {
 		 * and the request handler isn't called a second time.
 		 */
 		handled_requests: new Map(),
-		/**
-		 * Keep a map of received requests to not execute the
-		 * requestHandler a second time. Yes, this can happen.
-		 */
-		received_requests: new Map(),
 		ready: false,
 		closed: false,
 
@@ -53,7 +49,6 @@ export default function createRequestResponseProtocol(api, label = "") {
 		// only to be used for debugging
 		debug_options: {
 			disable_mutex: false,
-			disable_saving_received_requests: false,
 			print_mutex_acquisition: false
 		},
 
@@ -112,10 +107,6 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 			_setDebugDisableMutex(value) {
 				instance.debug_options.disable_mutex = value
-			},
-
-			_setDisableSavingReceivedRequests(value) {
-				instance.debug_options.disable_saving_received_requests = value
 			},
 
 			_setDebugPrintMutexAcquisition(value) {

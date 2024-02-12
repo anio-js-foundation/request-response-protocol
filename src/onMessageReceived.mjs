@@ -1,12 +1,23 @@
 import pruneRequestsCache from "./pruneRequestsCache.mjs"
 
-async function handleMessage(instance, message) {
-	instance.trace(`i will be handling the following message '${JSON.stringify(message)}'`)
+async function handleIncomingRequest(instance, message) {
+	const mutex_token = Math.random().toString(32).slice(2)
 
 	//
-	// call request handler
+	// make sure every request is handled sequentially
+	// this is needed for the response cache
 	//
-	if (message.cmd === "request") {
+	let release = () => {}
+
+	if (!instance.debug_options.disable_mutex) {
+		release = await instance.mutex.acquire()
+
+		if (instance.debug_options.print_mutex_acquisition) {
+			console.log(`--- con:${instance.connection_id}, label: '${instance.label}' mutex '${mutex_token}' acquire ---`)
+		}
+	}
+
+	try {
 		let response = null, from_cache = false
 
 		if (instance.handled_requests.has(message.request_id)) {
@@ -14,28 +25,17 @@ async function handleMessage(instance, message) {
 
 			from_cache = true
 		} else {
-			if (!instance.received_requests.has(message.request_id)) {
-
-				if (!instance.debug_options.disable_saving_received_requests) {
-					instance.received_requests.set(message.request_id, 1)
+			response = await instance.public_interface.requestHandler(message.data, null, {
+				debug: {
+					instance,
+					message
 				}
-
-				response = await instance.public_interface.requestHandler(message.data, null, {
-					debug: {
-						instance,
-						message
-					}
-				})
-			} else {
-				instance.debug(`i already received this request: '${message.request_id}'`)
-
-				return
-			}
+			})
 		}
 
 		let from_cache_str = from_cache ? " (from cache)" : ""
 
-		instance.trace(`i have already handled the message '${JSON.stringify(message)}'. my response is '${JSON.stringify(response)}'${from_cache_str}`)
+		instance.trace(`for the message '${JSON.stringify(message)}' my response is '${JSON.stringify(response)}'${from_cache_str}`)
 
 		instance.sendJSONData({
 			cmd: "response",
@@ -49,60 +49,47 @@ async function handleMessage(instance, message) {
 		}
 
 		pruneRequestsCache(instance)
-	}
-	//
-	// handle incoming response
-	//
-	else if (message.cmd === "response") {
-		const {original_request_id} = message
-
-		if (!instance.open_requests.has(message.original_request_id)) {
-			instance.debug(`no pending request with id '${original_request_id}'`)
-
-			return
-		}
-
-		const open_request = instance.open_requests.get(original_request_id)
-
-		if (open_request.timer !== null) {
-			clearTimeout(open_request.timer)
-		}
-
-		const {resolve} = open_request.request_promise
-
-		setTimeout(resolve, 0, message.response)
-
-		instance.open_requests.delete(original_request_id)
-	}
-}
-
-export default async function onMessageReceived(instance, message) {
-	//
-	// make sure every request is handled sequentially
-	// this is needed for the response cache
-	//
-	let release = () => {}
-
-	//
-	// only used for debugging
-	//
-	const mutex_token = Math.random().toString(32).slice(2)
-
-	if (!instance.debug_options.disable_mutex) {
-		release = await instance.mutex.acquire()
-
-		if (instance.debug_options.print_mutex_acquisition) {
-			console.log(`connection: ${instance.connection_id} ---- mutex acquire ${mutex_token} ----`)
-		}
-	}
-
-	try {
-		await handleMessage(instance, message)
 	} finally {
-		if (instance.debug_options.print_mutex_acquisition) {
-			console.log(`connection: ${instance.connection_id} ---- mutex release ${mutex_token} ----`)
+		if (!instance.debug_options.disable_mutex) {
+			if (instance.debug_options.print_mutex_acquisition) {
+				console.log(`--- con:${instance.connection_id}, label: '${instance.label}' mutex '${mutex_token}' release ---`)
+			}
 		}
 
 		await release()
+	}
+}
+
+async function handleIncomingResponse(instance, message) {
+	const {original_request_id} = message
+
+	if (!instance.open_requests.has(message.original_request_id)) {
+		instance.debug(`no pending request with id '${original_request_id}'`)
+
+		return
+	}
+
+	const open_request = instance.open_requests.get(original_request_id)
+
+	if (open_request.timer !== null) {
+		clearTimeout(open_request.timer)
+	}
+
+	const {resolve} = open_request.request_promise
+
+	setTimeout(resolve, 0, message.response)
+
+	instance.open_requests.delete(original_request_id)
+}
+
+export default async function onMessageReceived(instance, message) {
+	instance.trace(`i will be handling the following message '${JSON.stringify(message)}'`)
+
+	if (message.cmd === "request") {
+		await handleIncomingRequest(instance, message)
+	} else if (message.cmd === "response") {
+		await handleIncomingResponse(instance, message)
+	} else {
+		instance.debug(`bad message`, message)
 	}
 }
