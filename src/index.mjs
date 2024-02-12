@@ -35,6 +35,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 		 * and the request handler isn't called a second time.
 		 */
 		handled_requests: new Map(),
+		pending_responses: new Map(),
 		ready: false,
 		closed: false,
 

@@ -10,10 +10,10 @@ async function handleIncomingRequest(instance, message) {
 	let release = () => {}
 
 	if (!instance.debug_options.disable_mutex) {
-		release = await instance.mutex.acquire()
+		//release = await instance.mutex.acquire()
 
 		if (instance.debug_options.print_mutex_acquisition) {
-			console.log(`--- con:${instance.connection_id}, label: '${instance.label}' mutex '${mutex_token}' acquire ---`)
+		//	console.log(`--- con:${instance.connection_id}, label: '${instance.label}' mutex '${mutex_token}' acquire ---`)
 		}
 	}
 
@@ -24,13 +24,22 @@ async function handleIncomingRequest(instance, message) {
 			response = instance.handled_requests.get(message.request_id)
 
 			from_cache = true
+		} else if (instance.pending_responses.has(message.request_id)) {
+			console.log(message.request_id + " is pending, try later again.")
+
+			return
 		} else {
+			instance.pending_responses.set(message.request_id, 1)
+
 			response = await instance.public_interface.requestHandler(message.data, null, {
 				debug: {
 					instance,
 					message
 				}
 			})
+
+			instance.handled_requests.set(message.request_id, response)
+			instance.pending_responses.delete(message.request_id)
 		}
 
 		let from_cache_str = from_cache ? " (from cache)" : ""
@@ -44,19 +53,15 @@ async function handleIncomingRequest(instance, message) {
 			from_cache
 		})
 
-		if (!from_cache) {
-			instance.handled_requests.set(message.request_id, response)
-		}
-
 		pruneRequestsCache(instance)
 	} finally {
 		if (!instance.debug_options.disable_mutex) {
 			if (instance.debug_options.print_mutex_acquisition) {
-				console.log(`--- con:${instance.connection_id}, label: '${instance.label}' mutex '${mutex_token}' release ---`)
+				//console.log(`--- con:${instance.connection_id}, label: '${instance.label}' mutex '${mutex_token}' release ---`)
 			}
 		}
 
-		await release()
+		//await release()
 	}
 }
 
