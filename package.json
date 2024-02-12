@@ -1,6 +1,6 @@
 {
   "name": "@anio-js-foundation/request-response-protocol",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "A simple request/response protocol implementation.",
   "main": "./dist/package.mjs",
   "author": "Anio Software <info@anio.software>",
