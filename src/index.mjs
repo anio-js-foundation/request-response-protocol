@@ -53,7 +53,8 @@ export default function createRequestResponseProtocol(api, label = "") {
 		// only to be used for debugging
 		debug_options: {
 			disable_mutex: false,
-			disable_saving_received_requests: false
+			disable_saving_received_requests: false,
+			print_mutex_acquisition: false
 		},
 
 		trace(...args) {
@@ -115,6 +116,10 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 			_setDisableSavingReceivedRequests(value) {
 				instance.debug_options.disable_saving_received_requests = value
+			},
+
+			_setDebugPrintMutexAcquisition(value) {
+				instance.debug_options.print_mutex_acquisition = value
 			},
 
 			ready() {

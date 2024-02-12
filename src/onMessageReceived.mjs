@@ -83,13 +83,26 @@ export default async function onMessageReceived(instance, message) {
 	//
 	let release = () => {}
 
+	//
+	// only used for debugging
+	//
+	const mutex_token = Math.random().toString(32).slice(2)
+
 	if (!instance.debug_options.disable_mutex) {
 		release = await instance.mutex.acquire()
+
+		if (instance.debug_options.print_mutex_acquisition) {
+			console.log(`connection: ${instance.connection_id} ---- mutex acquire ${mutex_token} ----`)
+		}
 	}
 
 	try {
 		await handleMessage(instance, message)
 	} finally {
+		if (instance.debug_options.print_mutex_acquisition) {
+			console.log(`connection: ${instance.connection_id} ---- mutex release ${mutex_token} ----`)
+		}
+
 		await release()
 	}
 }
