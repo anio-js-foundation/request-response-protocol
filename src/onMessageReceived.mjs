@@ -1,7 +1,7 @@
 import pruneRequestsCache from "./pruneRequestsCache.mjs"
 
 async function handleIncomingRequest(instance, message) {
-	let response = null, from_cache = false
+	let response = null, from_cache = false, exec_time = -1
 
 	if (instance.handled_requests.has(message.request_id)) {
 		response = instance.handled_requests.get(message.request_id)
@@ -16,12 +16,37 @@ async function handleIncomingRequest(instance, message) {
 	} else {
 		instance.pending_responses.set(message.request_id, 1)
 
-		response = await instance.public_interface.requestHandler(message.data, null, {
-			debug: {
-				instance,
-				message
+		response = {
+			error: true,
+			data: null
+		}
+
+		try {
+			let exec_time_start = performance.now()
+
+			response.data = await instance.public_interface.requestHandler(message.data, null, {
+				debug: {
+					instance,
+					message
+				}
+			})
+			response.error = false
+
+			if (instance.debugging_mode === true) {
+				exec_time = performance.now() - exec_time_start
 			}
-		})
+		} catch (error) {
+			let error_message = "Uncaught error in remote requestHandler."
+
+			if (instance.debugging_mode === true) {
+				error_message += "\n"
+				error_message += `Message: ${error.message}\n`
+				error_message += "\n"
+				error_message += error.stack
+			}
+
+			response.data = error_message
+		}
 
 		instance.handled_requests.set(message.request_id, response)
 		instance.pending_responses.delete(message.request_id)
@@ -35,7 +60,8 @@ async function handleIncomingRequest(instance, message) {
 		cmd: "response",
 		original_request_id: message.request_id,
 		response,
-		from_cache
+		from_cache,
+		exec_time
 	})
 
 	pruneRequestsCache(instance)
@@ -56,9 +82,13 @@ async function handleIncomingResponse(instance, message) {
 		clearTimeout(open_request.timer)
 	}
 
-	const {resolve} = open_request.request_promise
+	const {resolve, reject} = open_request.request_promise
 
-	setTimeout(resolve, 0, message.response)
+	if (message.response.error) {
+		setTimeout(reject, 0, new Error(message.response.data))
+	} else {
+		setTimeout(resolve, 0, message.response.data)
+	}
 
 	instance.open_requests.delete(original_request_id)
 }

@@ -40,6 +40,7 @@ export default function createRequestResponseProtocol(api, label = "") {
 		pending_responses: new Map(),
 		ready: false,
 		closed: false,
+		debugging_mode: false,
 
 		retransmission_delay: 500,
 
@@ -101,6 +102,10 @@ export default function createRequestResponseProtocol(api, label = "") {
 			trace: false,
 
 			connection_id,
+
+			_setDebuggingMode(value) {
+				instance.debugging_mode = value
+			},
 
 			ready() {
 				return synchronized_promise.promise
