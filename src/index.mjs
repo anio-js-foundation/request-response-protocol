@@ -42,6 +42,13 @@ export default function createRequestResponseProtocol(api, label = "") {
 		closed: false,
 		debugging_mode: false,
 
+		//
+		// the default timeout for a request
+		// this timeout applies to one-shot requests
+		// and regular requests with zero retransmission attempts.
+		//
+		default_request_timeout: 1500,
+
 		retransmission_delay: 500,
 
 		debug(...args) {
@@ -113,6 +120,14 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 			setRetransmissionDelay(amount) {
 				instance.retransmission_delay = amount
+			},
+
+			setDefaultRequestTimeout(value) {
+				instance.default_request_timeout = value
+			},
+
+			getDefaultRequestTimeout() {
+				return instance.default_request_timeout
 			},
 
 			requestHandler(request) {
