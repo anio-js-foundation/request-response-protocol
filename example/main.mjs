@@ -23,6 +23,6 @@ await protocol.ready()
 
 console.log("protocol ready")
 
-protocol.withTimeout(150).sendSingleShotRequest(1).catch((e) => {console.log("e",e.message)})
+protocol.sendRequest(1).catch((e) => {console.log("e",e.message)})
 
 protocol.close()

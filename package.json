@@ -12,6 +12,7 @@
   "devDependencies": {
     "@anio-js-core-foundation/create-promise": "^1.0.1",
     "@anio-js-core-foundation/create-random-identifier": "^1.0.1",
+    "@anio-js-core-foundation/retransmit-timer-values-generator": "^1.0.0",
     "@anio-js-foundation/bundle-package": "^3.1.2",
     "@anio-js-foundation/node-create-worker": "^0.9.0"
   },

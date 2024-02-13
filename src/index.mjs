@@ -1,7 +1,7 @@
 import createRandomIdentifier from "@anio-js-core-foundation/create-random-identifier"
 import createPromise from "@anio-js-core-foundation/create-promise"
-import sendSingleShotRequestWithTimeout from "./sendSingleShotRequestWithTimeout.mjs"
-import sendRetransmittingRequest from "./sendRetransmittingRequest.mjs"
+import sendRequestWithOptions from "./sendRequestWithOptions.mjs"
+
 import onMessageReceived from "./onMessageReceived.mjs"
 
 export default function createRequestResponseProtocol(api, label = "") {
@@ -47,9 +47,12 @@ export default function createRequestResponseProtocol(api, label = "") {
 		// this timeout applies to one-shot requests
 		// and regular requests with zero retransmission attempts.
 		//
-		default_request_timeout: 1500,
+		default_request_timeout: 500,
 
-		retransmission_delay: 500,
+		//
+		// the default max. retransmissions for a request
+		//
+		default_max_retransmissions: 10,
 
 		debug(...args) {
 			if (instance.public_interface.debug !== true) return
@@ -118,8 +121,19 @@ export default function createRequestResponseProtocol(api, label = "") {
 				return synchronized_promise.promise
 			},
 
-			setRetransmissionDelay(amount) {
-				instance.retransmission_delay = amount
+			sendRequestWithOptions({
+				timeout = instance.default_request_timeout,
+				max_retransmissions = instance.default_max_retransmissions
+			} = {}, request_data) {
+				return sendRequestWithOptions(instance, {timeout, max_retransmissions}, request_data)
+			},
+
+			setDefaultMaxRetransmissions(value) {
+				instance.default_max_retransmissions = value
+			},
+
+			getDefaultMaxRetransmissions(value) {
+				return instance.default_max_retransmissions
 			},
 
 			setDefaultRequestTimeout(value) {
@@ -134,39 +148,53 @@ export default function createRequestResponseProtocol(api, label = "") {
 				return `Please set instance.requestHandler to handle requests. Incoming request data was: ${JSON.stringify(request)}.`
 			},
 
-			withTimeout(timeout_value) {
+			sendRequest(request_data) {
+				return instance.public_interface.sendRequestWithOptions({}, request_data)
+			},
+
+			/* special api
+			withTimeout(with_timeout_value) {
 				return {
 					sendRequest(request_data) {
-						let max_attempts = Math.floor(timeout_value / instance.retransmission_delay)
-
-						instance.debug(
-							`Calculated max_attempts = '${max_attempts}' from timeout value '${timeout_value}ms' (retransmission delay is '${instance.retransmission_delay}ms')`
-						)
-
-						return sendRetransmittingRequest(instance, request_data, max_attempts)
+						return instance.public_interface.sendRequestWithOptions({
+							timeout: with_timeout_value
+						}, request_data)
 					},
 
-					sendSingleShotRequest(request_data) {
-						return sendSingleShotRequestWithTimeout(instance, request_data, timeout_value)
+					withMaxRetransmissions(with_max_retransmissions_value) {
+						return {
+							sendRequest(request_data) {
+								return instance.public_interface.sendRequestWithOptions({
+									timeout: with_timeout_value,
+									max_retransmissions: with_max_retransmissions_value
+								}, request_data)
+							}
+						}
 					}
 				}
 			},
 
-			withMaxRetransmissionAttempts(max_attempts) {
+			withMaxRetransmissions(with_max_retransmissions_value) {
 				return {
 					sendRequest(request_data) {
-						return sendRetransmittingRequest(instance, request_data, max_attempts)
+						return instance.public_interface.sendRequestWithOptions({
+							max_retransmissions: with_max_retransmissions_value
+						})
+					},
+
+					withTimeout(with_timeout_value) {
+						return {
+							sendRequest(request_data) {
+								return instance.public_interface.sendRequestWithOptions({
+									timeout: with_timeout_value,
+									max_retransmissions: with_max_retransmissions_value
+								}, request_data)
+							}
+						}
 					}
 				}
 			},
-
-			sendRequest(request_data) {
-				return sendRetransmittingRequest(instance, request_data, -1)
-			},
-
-			sendSingleShotRequest(request_data) {
-				return sendSingleShotRequestWithTimeout(instance, request_data, 0)
-			},
+			special api */
 
 			closeAllPendingRequests(reason = `closeAllPendingRequests() was called.`) {
 				for (const [request_id, open_request] of instance.open_requests) {
