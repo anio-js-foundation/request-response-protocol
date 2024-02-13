@@ -10,10 +10,10 @@ export default function createRequestResponseProtocol(api, label = "") {
 	let synchronized_promise = createPromise()
 	let current_state = "init"
 
-	/*
-	 * Wrap api.sendMessage to ignore errors that are thrown
-	 * by that function.
-	 */
+	//
+	// Wrap api.sendMessage to ignore errors that are thrown
+	// by that function.
+	//
 	const sendMessageViaAPI = async (instance, message) => {
 		try {
 			await api.sendMessage(message)
@@ -27,16 +27,16 @@ export default function createRequestResponseProtocol(api, label = "") {
 		label,
 
 		open_requests: new Map(),
-		/*
-		 * Keep a map of handled requests so if the same
-		 * request is received a second time, the result is re-used
-		 * and the request handler isn't called a second time.
-		 */
+		//
+		// Keep a map of handled requests so if the same
+		// request is received a second time, the result is re-used
+		// and the request handler isn't called a second time.
+		//
 		handled_requests: new Map(),
-		/*
-		 * Keep track of pending responses so we don't execute
-		 * the request handler a second time.
-		 */
+		//
+		// Keep track of pending responses so we don't execute
+		// the request handler a second time.
+		//
 		pending_responses: new Map(),
 		ready: false,
 		closed: false,
@@ -184,11 +184,11 @@ export default function createRequestResponseProtocol(api, label = "") {
 
 	api.on("message", instance.messageHandler)
 
-	/**
-	 * Slave can miss this message so repeat it
-	 * every once in a while to get the master and slave
-	 * synced up.
-	 */
+	//
+	// Slave can miss this message so repeat it
+	// every once in a while to get the master and slave
+	// synced up.
+	//
 	const delay_map = [50, 50, 50, 100, 100, 150, 150, 150, 250, 500, 750, 1000]
 	let delay_index = 0
 
