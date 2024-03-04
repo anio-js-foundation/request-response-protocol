@@ -1,6 +1,6 @@
-import createRandomIdentifier from "@anio-js-core-foundation/create-random-identifier"
-import createPromise from "@anio-js-core-foundation/create-promise"
-import retransmitTimerValuesGenerator from "@anio-js-core-foundation/retransmit-timer-values-generator"
+import createRandomIdentifier from "@anio-js-foundation/create-random-identifier"
+import createPromise from "@anio-js-foundation/create-promise"
+import retransmitTimerValuesGenerator from "@anio-js-foundation/retransmit-timer-values-generator"
 
 export default async function(instance, options, request_data) {
 	instance.assertReadyAndNotClosed()

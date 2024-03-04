@@ -5,7 +5,7 @@ import {fileURLToPath} from "node:url"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-import nodeCreateWorker from "@anio-js-foundation/node-create-worker"
+import nodeCreateWorker from "@anio-node-foundation/create-worker"
 
 const worker = await nodeCreateWorker(
 	path.join(__dirname, "worker.mjs"), [], {

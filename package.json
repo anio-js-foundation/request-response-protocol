@@ -10,14 +10,14 @@
     "url": "git+https://github.com/anio-js-foundation/request-response-protocol.git"
   },
   "devDependencies": {
-    "@anio-js-core-foundation/create-promise": "^1.0.1",
-    "@anio-js-core-foundation/create-random-identifier": "^1.0.1",
-    "@anio-js-core-foundation/retransmit-timer-values-generator": "^1.0.0",
-    "@anio-js-foundation/bundle-package": "^3.1.2",
-    "@anio-js-foundation/node-create-worker": "^0.9.0"
+    "@anio-js-foundation/create-promise": "^2.0.0",
+    "@anio-js-foundation/create-random-identifier": "^2.0.0",
+    "@anio-js-foundation/retransmit-timer-values-generator": "^2.0.0",
+    "@anio-node-foundation/create-worker": "^1.0.0",
+    "@anio-software/npm-package-bundler": "^1.0.0"
   },
   "scripts": {
-    "prepare": "./node_modules/.bin/bundle-package ."
+    "prepare": "./node_modules/.bin/npm-package-bundler ."
   },
   "files": [
     "./dist/package.mjs"
